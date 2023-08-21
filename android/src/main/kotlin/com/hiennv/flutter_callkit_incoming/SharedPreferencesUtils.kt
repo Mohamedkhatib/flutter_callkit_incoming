@@ -18,11 +18,11 @@ private fun initInstance(context: Context) {
 fun addCall(context: Context?, data: Data, isAccepted: Boolean = false) {
     val json = getString(context, "ACTIVE_CALLS", "[]")
     val arrayData: ArrayList<Data> = Utils.getGsonInstance()
-        .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
+            .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
     val currentData = arrayData.find { it == data }
-    if(currentData != null) {
+    if (currentData != null) {
         currentData.isAccepted = isAccepted
-    }else {
+    } else {
         arrayData.add(data)
     }
     putString(context, "ACTIVE_CALLS", Utils.getGsonInstance().toJson(arrayData))
@@ -31,7 +31,7 @@ fun addCall(context: Context?, data: Data, isAccepted: Boolean = false) {
 fun removeCall(context: Context?, data: Data) {
     val json = getString(context, "ACTIVE_CALLS", "[]")
     val arrayData: ArrayList<Data> = Utils.getGsonInstance()
-        .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
+            .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
     arrayData.remove(data)
     putString(context, "ACTIVE_CALLS", Utils.getGsonInstance().toJson(arrayData))
 }
@@ -44,19 +44,19 @@ fun removeAllCalls(context: Context?) {
 fun getActiveCalls(context: Context?): String {
     val json = getString(context, "ACTIVE_CALLS", "[]")
     val arrayData: ArrayList<Data> = Utils.getGsonInstance()
-        .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
+            .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
     return Utils.getGsonInstance().toJson(arrayData)
 }
 
 fun getDataActiveCalls(context: Context?): ArrayList<Data> {
     val json = getString(context, "ACTIVE_CALLS", "[]")
     return Utils.getGsonInstance()
-        .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
+            .fromJson(json, object : TypeToken<ArrayList<Data>>() {}.type)
 }
 
 fun getDataActiveCallsForFlutter(context: Context?): ArrayList<Map<String, Any?>> {
     val json = getString(context, "ACTIVE_CALLS", "[]")
-    return Utils.getGsonInstance().fromJson(json, object: TypeToken<ArrayList<Map<String, Any?>>>() {}.type)
+    return Utils.getGsonInstance().fromJson(json, object : TypeToken<ArrayList<Map<String, Any?>>>() {}.type)
 }
 
 fun putString(context: Context?, key: String, value: String?) {
@@ -77,4 +77,16 @@ fun remove(context: Context?, key: String) {
     initInstance(context)
     editor?.remove(key)
     editor?.commit()
+}
+
+
+fun addFlutterRequestParam(context: Context?, data: Map<String, Any?>) {
+    putString(context, "FLUTTER_REQUEST_PARAM", Utils.getGsonInstance().toJson(data))
+}
+
+fun getFlutterRequestParam (context: Context?): Map<String, Any?> {
+    val json = getString(context, "FLUTTER_REQUEST_PARAM" )
+
+    return Utils.getGsonInstance().fromJson(json, object : TypeToken<Map<String, Any?>>() {}.type)
+
 }

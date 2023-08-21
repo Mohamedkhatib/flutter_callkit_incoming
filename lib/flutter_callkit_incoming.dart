@@ -12,9 +12,12 @@ import 'entities/entities.dart';
 
 class FlutterCallkitIncoming {
   static const MethodChannel _channel =
-      const MethodChannel('flutter_callkit_incoming');
+  const MethodChannel('flutter_callkit_incoming');
+
+  static const MethodChannel _channelBackground =
+  const MethodChannel('flutter_callkit_incoming_background');
   static const EventChannel _eventChannel =
-      const EventChannel('flutter_callkit_incoming_events');
+  const EventChannel('flutter_callkit_incoming_events');
 
   /// Listen to event callback from [FlutterCallkitIncoming].
   ///
@@ -92,4 +95,16 @@ class FlutterCallkitIncoming {
     }
     return null;
   }
+
+  static setMethodCallHandler(
+      Future<dynamic> Function(MethodCall call)? function) {
+    _channelBackground.setMethodCallHandler(function);
+  }
+
+
+  static Future setFlutterRequestParam(String rejectUrl, String token) async {
+    await _channel.invokeMethod(
+        "setFlutterRequestParam", {'reject_url': rejectUrl, "token": token});
+  }
+
 }
