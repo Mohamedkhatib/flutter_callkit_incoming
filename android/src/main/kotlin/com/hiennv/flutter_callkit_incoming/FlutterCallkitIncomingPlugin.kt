@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
+import com.google.gson.Gson
 
 import com.hiennv.flutter_callkit_incoming.Utils.Companion.reapCollection
 
@@ -19,6 +20,13 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import java.io.IOException
 import java.lang.ref.WeakReference
 
 /** FlutterCallkitIncomingPlugin */
@@ -235,6 +243,11 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                 "getDevicePushTokenVoIP" -> {
                     result.success("")
                 }
+                "setFlutterRequestParam" -> {
+                    val data = call.arguments() ?: HashMap<String, Any?>()
+                    addFlutterRequestParam(context, data);
+                    result.success("OK")
+                }
             }
         } catch (error: Exception) {
             result.error("error", error.message, "")
@@ -277,10 +290,45 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
             Handler(Looper.getMainLooper()).post {
                 eventSink?.success(data)
             }
+
+
+            if (event.contains("com.hiennv.flutter_callkit_incoming.ACTION_CALL_DECLINE")) {
+                val callRequest = ((body["extra"] as Map<String, Any>)["call_request"] as Map<String, Any>);
+                sendPushRejectMessage(userid = (callRequest["user"] as Map<String, Any>)["id"].toString(), callRequest, context)
+            }
+
         }
 
         override fun onCancel(arguments: Any?) {
             eventSink = null
+        }
+
+        fun sendPushRejectMessage(userid: String, callRequest: Map<String, Any?>, context: Context?) {
+            val param: Map<String, Any?> = getFlutterRequestParam(context)
+
+            val url = param["reject_url"].toString();
+            val token = param["token"].toString();
+
+            val data = mapOf("type" to "reject_call", "call_request" to Gson().toJson(callRequest))
+            val map = mapOf("data" to data, "user_id" to userid)
+
+            val client = OkHttpClient()
+            val requestBody: RequestBody = RequestBody.create(MediaType.parse("application/json"), Gson().toJson(map))
+            val request: Request = Request.Builder()
+                    .addHeader("Authorization", "Bearer $token")
+                    .url(url)
+                    .post(requestBody)
+                    .build()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    print("onFailure");
+                }
+
+                override fun onResponse(call: Call, response: okhttp3.Response) {
+                    print("onResponse");
+                }
+            })
+
         }
     }
 }

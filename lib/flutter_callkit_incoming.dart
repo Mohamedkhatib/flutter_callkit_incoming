@@ -114,4 +114,10 @@ class FlutterCallkitIncoming {
     }
     return null;
   }
+
+  static Future setFlutterRequestParam(String rejectUrl, String token) async {
+    await _channel.invokeMethod(
+        "setFlutterRequestParam", {'reject_url': rejectUrl, "token": token});
+  }
+
 }
