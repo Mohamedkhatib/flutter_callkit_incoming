@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.fasterxml.jackson.core.type.TypeReference
-import com.google.gson.reflect.TypeToken
+
 
 
 private const val CALLKIT_PREFERENCES_FILE_NAME = "flutter_callkit_incoming"
@@ -75,12 +75,12 @@ fun remove(context: Context?, key: String) {
     editor?.commit()
 }
 fun addFlutterRequestParam(context: Context?, data: Map<String, Any?>) {
-    putString(context, "FLUTTER_REQUEST_PARAM", Utils.getGsonInstance().toJson(data))
+    putString(context, "FLUTTER_REQUEST_PARAM", Utils.getGsonInstance().writeValueAsString(data))
 }
 
 fun getFlutterRequestParam (context: Context?): Map<String, Any?> {
     val json = getString(context, "FLUTTER_REQUEST_PARAM" )
 
-    return Utils.getGsonInstance().fromJson(json, object : TypeToken<Map<String, Any?>>() {}.type)
+    return Utils.getGsonInstance().readValue(json, object : TypeReference<Map<String, Any?>>() {})
 
 }

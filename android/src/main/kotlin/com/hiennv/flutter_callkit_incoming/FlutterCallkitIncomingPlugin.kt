@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
-import com.google.gson.Gson
 
 import com.hiennv.flutter_callkit_incoming.Utils.Companion.reapCollection
 
@@ -52,13 +51,13 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
 
         fun sendEvent(event: String, body: Map<String, Any>) {
             eventHandlers.reapCollection().forEach {
-                it.get()?.send(event, body)
+                it.get()?.send(event, body, context = instance.context)
             }
         }
 
         public fun sendEventCustom(event: String, body: Map<String, Any>) {
             eventHandlers.reapCollection().forEach {
-                it.get()?.send(event, body)
+                it.get()?.send(event, body , instance.context)
             }
         }
 
@@ -147,7 +146,7 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
 
     public fun sendEventCustom(body: Map<String, Any>) {
         eventHandlers.reapCollection().forEach {
-            it.get()?.send(CallkitConstants.ACTION_CALL_CUSTOM, body)
+            it.get()?.send(CallkitConstants.ACTION_CALL_CUSTOM, body , instance.context)
         }
     }
 
@@ -282,7 +281,7 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
             eventSink = sink
         }
 
-        fun send(event: String, body: Map<String, Any>) {
+        fun send(event: String, body: Map<String, Any>, context: Context?) {
             val data = mapOf(
                 "event" to event,
                 "body" to body
@@ -309,11 +308,11 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
             val url = param["reject_url"].toString();
             val token = param["token"].toString();
 
-            val data = mapOf("type" to "reject_call", "call_request" to Gson().toJson(callRequest))
+            val data = mapOf("type" to "reject_call", "call_request" to Utils.getGsonInstance().writeValueAsString(callRequest))
             val map = mapOf("data" to data, "user_id" to userid)
 
             val client = OkHttpClient()
-            val requestBody: RequestBody = RequestBody.create(MediaType.parse("application/json"), Gson().toJson(map))
+            val requestBody: RequestBody = RequestBody.create(MediaType.parse("application/json"), Utils.getGsonInstance().writeValueAsString(map))
             val request: Request = Request.Builder()
                     .addHeader("Authorization", "Bearer $token")
                     .url(url)
